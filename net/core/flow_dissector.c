@@ -34,6 +34,7 @@
 #endif
 #include <linux/bpf-netns.h>
 
+#define IPPROTO_DCPIM 0xFE
 static void dissector_set_key(struct flow_dissector *flow_dissector,
 			      enum flow_dissector_key_id key_id)
 {
@@ -1390,6 +1391,7 @@ ip_proto_again:
 		break;
 
 	case IPPROTO_TCP:
+	case IPPROTO_DCPIM:
 		__skb_flow_dissect_tcp(skb, flow_dissector, target_container,
 				       data, nhoff, hlen);
 		break;

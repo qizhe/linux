@@ -1437,7 +1437,7 @@ struct sk_buff *inet_gro_receive(struct list_head *head, struct sk_buff *skb)
 {
 	const struct net_offload *ops;
 	struct sk_buff *pp = NULL;
-	const struct iphdr *iph;
+	struct iphdr *iph;
 	struct sk_buff *p;
 	unsigned int hlen;
 	unsigned int off;
@@ -1453,7 +1453,14 @@ struct sk_buff *inet_gro_receive(struct list_head *head, struct sk_buff *skb)
 		if (unlikely(!iph))
 			goto out;
 	}
-
+        /* dcPIM change */
+        if(iph->tos & 0x1) {
+               if (unlikely(ip_fast_csum((u8 *)iph, 5)))
+                       goto out;
+               iph->protocol = 0xFE;
+               iph->tos &= ~(1UL);
+               ip_send_check (iph);
+        }
 	proto = iph->protocol;
 
 	rcu_read_lock();
